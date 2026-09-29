@@ -1,0 +1,17 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Local data & uploads (prevents committing uploaded PDFs and vector DB)
+data/
+
+# IDE / Editor folders
+.vscode/
+.idea/
