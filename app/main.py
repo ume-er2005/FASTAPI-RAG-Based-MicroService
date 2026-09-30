@@ -36,9 +36,9 @@ class QueryRequest(BaseModel):
         example="What is the late submission policy and grading criteria?"
     )
     document_name: Optional[str] = Field(
-        None,
-        description="Optional: Filter query to a specific document filename",
-        example="CS101_Syllabus.pdf"
+        default=None,
+        description="Optional: Filter query to a specific document filename. Leave null or omit to search all uploaded documents.",
+        example=None
     )
     top_k: Optional[int] = Field(
         None,
@@ -179,16 +179,14 @@ async def query_rag(request: QueryRequest):
     - Assembles the prompt with retrieved context and page citations.
     - Generates a grounded response using Gemini LLM.
     """
-    if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY == "your_gemini_api_key_here":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="GEMINI_API_KEY is not configured. Please set your Gemini API key in the .env file."
-        )
+    # Always ensure in-memory store has latest persisted data
+    if not vector_store.documents:
+        vector_store.load()
 
     if not vector_store.documents:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No documents have been indexed yet. Please upload a PDF file via /upload first."
+            detail="No documents have been indexed yet. Please upload a PDF file via POST /upload first."
         )
 
     try:

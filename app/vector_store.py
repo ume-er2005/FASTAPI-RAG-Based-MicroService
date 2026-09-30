@@ -97,25 +97,36 @@ class VectorStore:
         """
         Retrieves top_k most relevant chunks using cosine similarity.
         """
+        # Ensure latest data is loaded from disk
+        if not self.documents:
+            self.load()
+
         if not self.documents or self._vectors is None:
             return []
 
         top_k = top_k or settings.TOP_K_RESULTS
         query_vector = np.array(self.generate_query_embedding(query), dtype=np.float32)
 
-        # Filter candidate indices if document_filter is provided
+        # Sanitize document filter (ignore OpenAPI dummy values like "string", "null", empty)
+        clean_filter = None
         if document_filter:
+            f_str = document_filter.strip().lower()
+            if f_str not in ["", "string", "null", "none"]:
+                clean_filter = f_str
+
+        # Filter candidate indices if a valid document_filter is provided
+        docs_subset = self.documents
+        candidate_vectors = self._vectors
+
+        if clean_filter:
             candidate_indices = [
                 i for i, doc in enumerate(self.documents)
-                if doc["document_name"].lower() == document_filter.lower()
+                if clean_filter in doc["document_name"].lower()
             ]
-            if not candidate_indices:
-                return []
-            candidate_vectors = self._vectors[candidate_indices]
-            docs_subset = [self.documents[i] for i in candidate_indices]
-        else:
-            candidate_vectors = self._vectors
-            docs_subset = self.documents
+            if candidate_indices:
+                candidate_vectors = self._vectors[candidate_indices]
+                docs_subset = [self.documents[i] for i in candidate_indices]
+            # If specified filter didn't match, fallback to searching across all documents
 
         # Cosine similarity: (A . B) / (||A|| * ||B||)
         norm_candidates = np.linalg.norm(candidate_vectors, axis=1)
