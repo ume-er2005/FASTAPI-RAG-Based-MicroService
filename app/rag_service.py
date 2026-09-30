@@ -78,7 +78,7 @@ Answer:"""
 
         # Step 4: Generation via Gemini with graceful fallback
         client = self._get_client()
-        candidate_models = [settings.GEMINI_MODEL, "gemini-3.5-flash", "gemini-2.5-flash"]
+        candidate_models = [settings.GEMINI_MODEL, "gemini-3.5-flash", "gemini-3.1-flash-lite"]
         # Ensure unique models while preserving order
         models_to_try = list(dict.fromkeys(candidate_models))
 

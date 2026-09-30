@@ -8,7 +8,7 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 
 class Settings:
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "gemini-embedding-001")
     
     CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "500"))
